@@ -1,141 +1,132 @@
 # Smart Parking Management System (SPMS)
 
-A cloud-native, microservice-based backend platform for managing urban parking spaces in real time — built for **ITS 1018 – Software Architectures & Design Patterns II** (Graduate Diploma in Software Engineering, IJSE).
+A cloud-native, microservice-based platform for real-time parking space management, built for **ITS 1018 – Software Architectures & Design Patterns II** (Graduate Diploma in Software Engineering, IJSE).
 
-## Resources
-- [Postman Collection](./postman_collection.json)
-- ![Eureka Dashboard](./docs/screenshots/eureka_dashboard.png)
+SPMS allows drivers to search and reserve parking spaces in real time, lets parking owners manage their spaces dynamically, simulates vehicle entry/exit, and handles mock payments with digital receipt generation.
 
-## Business Scenario
-
-SPMS solves urban parking congestion by giving drivers real-time visibility into available parking, letting owners manage their spaces dynamically, and handling digital payments — all through a decoupled, scalable microservice architecture.
-
-## Architecture Overview
-
-| Component | Port | Role |
-|---|---|---|
-| **eureka-server** | 8761 | Service Registry & Discovery (Netflix Eureka) |
-| **config-server** | 8888 | Centralized configuration management (Spring Cloud Config, native profile) |
-| **api-gateway** | 8080 | Single entry point routing to all microservices (Spring Cloud Gateway) |
-| **user-service** | 8081 | Registers/authenticates users & owners, booking history |
-| **vehicle-service** | 8082 | Manages vehicles, simulates entry/exit tracking |
-| **parking-service** | 8083 | Manages parking spaces, availability, reservations |
-| **payment-service** | 8084 | Mock payment processing & digital receipt generation |
+## Architecture
 
 ```
-Client (Postman)
-      │
-      ▼
- API Gateway (8080)
-      │
-      ├──► User Service (8081)      ┐
-      ├──► Vehicle Service (8082)   ├─ all register with ─► Eureka Server (8761)
-      ├──► Parking Service (8083)   │        and fetch config from
-      └──► Payment Service (8084)   ┘        Config Server (8888)
+                        ┌──────────────────┐
+                        │   Eureka Server    │  (Service Registry - 8761)
+                        └─────────▲──────────┘
+                                  │ registers
+        ┌─────────────┬──────────┼──────────┬─────────────┐
+        │              │          │           │             │
+  ┌─────▼─────┐  ┌─────▼─────┐ ┌─▼───────┐ ┌─▼──────────┐ ┌▼────────────┐
+  │User Service│  │Vehicle Svc│ │Parking  │ │Payment Svc │ │ Config      │
+  │   :8081    │  │  :8082    │ │Service  │ │   :8084    │ │ Server:8888 │
+  └────────────┘  └───────────┘ │ :8083   │ └────────────┘ └─────────────┘
+        ▲               ▲       └────▲────┘        ▲
+        │               │            │              │
+        └───────────────┴────────────┴──────────────┘
+                          │
+                  ┌───────▼────────┐
+                  │  API Gateway     │  :8080  (single entry point)
+                  └─────────────────┘
+                          ▲
+                          │
+                     Postman / Client
 ```
-
-All business microservices are built with **Spring Boot 3.2.5** (Java 17) and use **in-memory storage** (thread-safe `ConcurrentHashMap` repositories) so the whole system runs standalone with zero database setup — matching the assignment's "in-memory or persistent" requirement for logs/history.
 
 ## Tech Stack
-- Java 17, Spring Boot 3.2.5
-- Spring Cloud 2023.0.1 (Netflix Eureka, Config Server, Gateway)
-- Spring Web, Spring Validation
-- Maven
+
+| Component | Technology |
+|---|---|
+| Language | Java 17 |
+| Framework | Spring Boot 3.2.5 |
+| Microservices | Spring Cloud 2023.0.1 |
+| Service Registry | Spring Cloud Netflix Eureka |
+| Config Management | Spring Cloud Config Server |
+| API Gateway | Spring Cloud Gateway |
+| Data Storage | In-memory (per-service, non-persistent) |
+| API Testing | Postman |
+| Build Tool | Maven |
+
+## Services
+
+| Service | Port | Base Path (via Gateway) | Responsibility |
+|---|---|---|---|
+| Eureka Server | 8761 | — | Service discovery/registration |
+| Config Server | 8888 | — | Centralized configuration |
+| API Gateway | 8080 | — | Single entry point, routes to services |
+| User Service | 8081 | `/api/users` | Registration, login, profile, booking history |
+| Vehicle Service | 8082 | `/api/vehicles` | Vehicle registration, entry/exit simulation, logs |
+| Parking Service | 8083 | `/api/parking` | Space CRUD, search, reserve/release, status updates |
+| Payment Service | 8084 | `/api/payments` | Mock payment processing, receipts |
 
 ## Project Structure
+
 ```
 SPMS/
-├── eureka-server/       # Service registry
-├── config-server/       # Centralized config (native profile)
-├── api-gateway/         # Single entry point / routing
-├── user-service/        # Users & owners
-├── vehicle-service/     # Vehicles & entry/exit simulation
-├── parking-service/     # Parking spaces & reservations
-├── payment-service/     # Mock payments & receipts
-├── docs/screenshots/    # Eureka dashboard screenshot goes here
+├── eureka-server/
+├── config-server/
+├── api-gateway/
+├── user-service/
+├── vehicle-service/
+├── parking-service/
+├── payment-service/
+├── docs/
+│   └── screenshots/
+│       └── eureka_dashboard.png
 ├── postman_collection.json
 └── README.md
 ```
 
-## How to Run
+## Running the Project
 
-Run each module in its **own terminal**, in this order (each is a standalone Maven project):
+Start the services in this order (each has its own `mvnw`/Maven build):
 
-```bash
-# 1. Start Eureka Server first
-cd eureka-server && mvn spring-boot:run
+1. **Eureka Server** – `cd eureka-server && ./mvnw spring-boot:run` → http://localhost:8761
+2. **Config Server** – `cd config-server && ./mvnw spring-boot:run` → http://localhost:8888
+3. **User / Vehicle / Parking / Payment Services** – run each with `./mvnw spring-boot:run` (any order, after Eureka + Config are up)
+4. **API Gateway** – `cd api-gateway && ./mvnw spring-boot:run` → http://localhost:8080
 
-# 2. Start Config Server
-cd config-server && mvn spring-boot:run
+Once all services show **UP** on the Eureka dashboard (`localhost:8761`), all API calls can be made through the Gateway at `http://localhost:8080`.
 
-# 3. Start the business microservices (any order, after step 1 & 2)
-cd user-service && mvn spring-boot:run
-cd vehicle-service && mvn spring-boot:run
-cd parking-service && mvn spring-boot:run
-cd payment-service && mvn spring-boot:run
+## API Overview (via Gateway – localhost:8080)
 
-# 4. Start the API Gateway last
-cd api-gateway && mvn spring-boot:run
-```
+**User Service** — `/api/users`
+- `POST /register` – register a user (role: `DRIVER`, `OWNER`, `ADMIN`)
+- `POST /login` – authenticate
+- `GET /{id}` – get profile
+- `PUT /{id}` – update profile
+- `GET /{id}/bookings` – booking history
 
-Once everything is up:
-- Eureka Dashboard → http://localhost:8761 (all 5 services + gateway should appear as `UP`)
-- All requests go through the gateway → http://localhost:8080
+**Vehicle Service** — `/api/vehicles`
+- `POST /` – register vehicle
+- `GET /?userId=` – list vehicles (optionally by user)
+- `POST /{id}/entry` – simulate entry
+- `POST /{id}/exit` – simulate exit
+- `GET /{id}/logs` – entry/exit logs
 
-> Config Server integration uses `optional:configserver:` — so if you skip starting the config server, every service still boots fine using its own local `application.yml` defaults.
+**Parking Service** — `/api/parking`
+- `POST /` – create space
+- `GET /?city=&zone=&status=` – search spaces
+- `PUT /{id}/reserve` / `PUT /{id}/release`
+- `PATCH /{id}/status` – update status (`AVAILABLE`, `OCCUPIED`, `RESERVED`, `MAINTENANCE`)
 
-## API Endpoints (via Gateway — http://localhost:8080)
+**Payment Service** — `/api/payments`
+- `POST /` – process mock payment
+- `GET /user/{userId}` – payment history
+- `GET /receipt/{receiptId}` – digital receipt
 
-### User Service — `/api/users`
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/users/register` | Register a new user/owner |
-| POST | `/api/users/login` | Authenticate user |
-| GET | `/api/users` | List all users |
-| GET | `/api/users/{id}` | Get user by id |
-| PUT | `/api/users/{id}` | Update user profile |
-| DELETE | `/api/users/{id}` | Delete user |
-| GET | `/api/users/{id}/bookings` | Booking/activity history |
+Full request/response examples are in the Postman collection below.
 
-### Vehicle Service — `/api/vehicles`
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/vehicles` | Register a vehicle |
-| GET | `/api/vehicles` | List all (or `?userId=`) |
-| GET | `/api/vehicles/{id}` | Get vehicle by id |
-| PUT | `/api/vehicles/{id}` | Update vehicle |
-| DELETE | `/api/vehicles/{id}` | Remove vehicle |
-| POST | `/api/vehicles/{id}/entry` | Simulate vehicle entry |
-| POST | `/api/vehicles/{id}/exit` | Simulate vehicle exit |
-| GET | `/api/vehicles/{id}/logs` | Entry/exit history |
+## Resources
 
-### Parking Space Service — `/api/parking`
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/parking` | Create a parking space |
-| GET | `/api/parking?city=&zone=&status=` | Search/filter spaces |
-| GET | `/api/parking/{id}` | Get space by id |
-| GET | `/api/parking/owner/{ownerId}` | Spaces by owner |
-| PUT | `/api/parking/{id}` | Update space details |
-| DELETE | `/api/parking/{id}` | Remove space |
-| PUT | `/api/parking/{id}/reserve` | Reserve a space |
-| PUT | `/api/parking/{id}/release` | Release a space |
-| PATCH | `/api/parking/{id}/status` | Manual/simulated IoT status update |
-
-### Payment Service — `/api/payments`
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/payments` | Process a mock payment & generate receipt |
-| GET | `/api/payments` | List all payments |
-| GET | `/api/payments/{id}` | Get payment by id |
-| GET | `/api/payments/user/{userId}` | Payments by user |
-| GET | `/api/payments/receipt/{receiptId}` | Fetch digital receipt |
+- [Postman Collection](Postman-Collection/postman_collection.json)
+- ![Eureka Dashboard](./docs/screenshots/eureka_dashboard.png)
 
 ## Testing
 
-All endpoints were tested with **Postman** — see [`postman_collection.json`](./postman_collection.json). Each service also exposes a `GET /.../health` endpoint for a quick liveness check. Error handling (404 not found, 400 validation errors, 409 conflicts such as double-reservation) is implemented via `@RestControllerAdvice` global exception handlers in every service.
+All endpoints were tested using the Postman collection above, covering:
+- Successful CRUD flows for each service
+- Error handling (invalid IDs, missing required fields)
+- End-to-end flow: register user → register vehicle → create parking space → reserve → simulate entry → process payment → get receipt → release space → simulate exit
 
-## Notes for Submission
-1. Take a screenshot of the Eureka dashboard (http://localhost:8761) once all services are registered and save it as `docs/screenshots/eureka_dashboard.png`.
-2. Export/verify `postman_collection.json` at the project root (already included here).
-3. Push this whole folder to a GitHub repository with this README at the root.
+## Author
+
+**Kavindu Sasmitha (Saka)**
+Graduate Diploma in Software Engineering – IJSE
+ITS 1018 – Software Architectures & Design Patterns II
