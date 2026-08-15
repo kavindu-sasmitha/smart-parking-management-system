@@ -1,0 +1,247 @@
+{
+  "info": {
+    "name": "SPMS - Smart Parking Management System",
+    "description": "Postman collection generated directly from the SPMS controller source code (User, Vehicle, Parking, Payment services), routed through the API Gateway at localhost:8080.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "gateway_url", "value": "http://localhost:8080", "type": "string" },
+    { "key": "user_id", "value": "1", "type": "string" },
+    { "key": "vehicle_id", "value": "1", "type": "string" },
+    { "key": "space_id", "value": "1", "type": "string" },
+    { "key": "payment_id", "value": "1", "type": "string" },
+    { "key": "receipt_id", "value": "RCT-0001", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "User Service (/api/users)",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kavindu Sasmitha\",\n  \"email\": \"kavindu@example.com\",\n  \"password\": \"Test@1234\",\n  \"phone\": \"0771234567\",\n  \"role\": \"DRIVER\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/api/users/register", "host": ["{{gateway_url}}"], "path": ["api", "users", "register"] }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"kavindu@example.com\",\n  \"password\": \"Test@1234\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/users/login", "host": ["{{gateway_url}}"], "path": ["api", "users", "login"] }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/users", "host": ["{{gateway_url}}"], "path": ["api", "users"] } }
+        },
+        {
+          "name": "Get User by ID",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/users/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["api", "users", "{{user_id}}"] } }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Kavindu S.\",\n  \"phone\": \"0779998888\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/users/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["api", "users", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": { "method": "DELETE", "url": { "raw": "{{gateway_url}}/api/users/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["api", "users", "{{user_id}}"] } }
+        },
+        {
+          "name": "Get User Booking History",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/users/{{user_id}}/bookings", "host": ["{{gateway_url}}"], "path": ["api", "users", "{{user_id}}", "bookings"] } }
+        },
+        {
+          "name": "User Service Health",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/users/health", "host": ["{{gateway_url}}"], "path": ["api", "users", "health"] } }
+        }
+      ]
+    },
+    {
+      "name": "Vehicle Service (/api/vehicles)",
+      "item": [
+        {
+          "name": "Register Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"plateNumber\": \"WP-CAB-1234\",\n  \"type\": \"CAR\",\n  \"userId\": {{user_id}}\n}" },
+            "url": { "raw": "{{gateway_url}}/api/vehicles", "host": ["{{gateway_url}}"], "path": ["api", "vehicles"] }
+          }
+        },
+        {
+          "name": "Get All Vehicles",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/vehicles", "host": ["{{gateway_url}}"], "path": ["api", "vehicles"] } }
+        },
+        {
+          "name": "Get Vehicles by User ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway_url}}/api/vehicles?userId={{user_id}}",
+              "host": ["{{gateway_url}}"], "path": ["api", "vehicles"],
+              "query": [{ "key": "userId", "value": "{{user_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "Get Vehicle by ID",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/vehicles/{{vehicle_id}}", "host": ["{{gateway_url}}"], "path": ["api", "vehicles", "{{vehicle_id}}"] } }
+        },
+        {
+          "name": "Update Vehicle",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"plateNumber\": \"WP-CAB-1234\",\n  \"type\": \"VAN\",\n  \"userId\": {{user_id}}\n}" },
+            "url": { "raw": "{{gateway_url}}/api/vehicles/{{vehicle_id}}", "host": ["{{gateway_url}}"], "path": ["api", "vehicles", "{{vehicle_id}}"] }
+          }
+        },
+        {
+          "name": "Delete Vehicle",
+          "request": { "method": "DELETE", "url": { "raw": "{{gateway_url}}/api/vehicles/{{vehicle_id}}", "host": ["{{gateway_url}}"], "path": ["api", "vehicles", "{{vehicle_id}}"] } }
+        },
+        {
+          "name": "Record Vehicle Entry",
+          "request": { "method": "POST", "url": { "raw": "{{gateway_url}}/api/vehicles/{{vehicle_id}}/entry", "host": ["{{gateway_url}}"], "path": ["api", "vehicles", "{{vehicle_id}}", "entry"] } }
+        },
+        {
+          "name": "Record Vehicle Exit",
+          "request": { "method": "POST", "url": { "raw": "{{gateway_url}}/api/vehicles/{{vehicle_id}}/exit", "host": ["{{gateway_url}}"], "path": ["api", "vehicles", "{{vehicle_id}}", "exit"] } }
+        },
+        {
+          "name": "Get Vehicle Entry/Exit Logs",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/vehicles/{{vehicle_id}}/logs", "host": ["{{gateway_url}}"], "path": ["api", "vehicles", "{{vehicle_id}}", "logs"] } }
+        },
+        {
+          "name": "Vehicle Service Health",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/vehicles/health", "host": ["{{gateway_url}}"], "path": ["api", "vehicles", "health"] } }
+        }
+      ]
+    },
+    {
+      "name": "Parking Space Service (/api/parking)",
+      "item": [
+        {
+          "name": "Create Parking Space",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"location\": \"Colombo 07, Independence Ave\",\n  \"city\": \"Colombo\",\n  \"zone\": \"A\",\n  \"ownerId\": {{user_id}},\n  \"pricePerHour\": 150.0\n}" },
+            "url": { "raw": "{{gateway_url}}/api/parking", "host": ["{{gateway_url}}"], "path": ["api", "parking"] }
+          }
+        },
+        {
+          "name": "Search Parking Spaces (city/zone/status)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway_url}}/api/parking?city=Colombo&zone=A&status=AVAILABLE",
+              "host": ["{{gateway_url}}"], "path": ["api", "parking"],
+              "query": [
+                { "key": "city", "value": "Colombo" },
+                { "key": "zone", "value": "A" },
+                { "key": "status", "value": "AVAILABLE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Parking Space by ID",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/parking/{{space_id}}", "host": ["{{gateway_url}}"], "path": ["api", "parking", "{{space_id}}"] } }
+        },
+        {
+          "name": "Get Parking Spaces by Owner",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/parking/owner/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["api", "parking", "owner", "{{user_id}}"] } }
+        },
+        {
+          "name": "Update Parking Space",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"location\": \"Colombo 07, Independence Ave\",\n  \"city\": \"Colombo\",\n  \"zone\": \"B\",\n  \"ownerId\": {{user_id}},\n  \"pricePerHour\": 200.0\n}" },
+            "url": { "raw": "{{gateway_url}}/api/parking/{{space_id}}", "host": ["{{gateway_url}}"], "path": ["api", "parking", "{{space_id}}"] }
+          }
+        },
+        {
+          "name": "Delete Parking Space",
+          "request": { "method": "DELETE", "url": { "raw": "{{gateway_url}}/api/parking/{{space_id}}", "host": ["{{gateway_url}}"], "path": ["api", "parking", "{{space_id}}"] } }
+        },
+        {
+          "name": "Reserve Parking Space",
+          "request": { "method": "PUT", "url": { "raw": "{{gateway_url}}/api/parking/{{space_id}}/reserve", "host": ["{{gateway_url}}"], "path": ["api", "parking", "{{space_id}}", "reserve"] } }
+        },
+        {
+          "name": "Release Parking Space",
+          "request": { "method": "PUT", "url": { "raw": "{{gateway_url}}/api/parking/{{space_id}}/release", "host": ["{{gateway_url}}"], "path": ["api", "parking", "{{space_id}}", "release"] } }
+        },
+        {
+          "name": "Update Space Status (Manual/IoT)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"OCCUPIED\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/parking/{{space_id}}/status", "host": ["{{gateway_url}}"], "path": ["api", "parking", "{{space_id}}", "status"] }
+          }
+        },
+        {
+          "name": "Parking Service Health",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/parking/health", "host": ["{{gateway_url}}"], "path": ["api", "parking", "health"] } }
+        }
+      ]
+    },
+    {
+      "name": "Payment Service (/api/payments)",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": {{user_id}},\n  \"vehicleId\": {{vehicle_id}},\n  \"parkingSpaceId\": {{space_id}},\n  \"amount\": 250.00,\n  \"cardNumber\": \"4111111111111111\",\n  \"expiry\": \"12/28\",\n  \"cvv\": \"123\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/payments", "host": ["{{gateway_url}}"], "path": ["api", "payments"] }
+          }
+        },
+        {
+          "name": "Get All Payments",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/payments", "host": ["{{gateway_url}}"], "path": ["api", "payments"] } }
+        },
+        {
+          "name": "Get Payment by ID",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/payments/{{payment_id}}", "host": ["{{gateway_url}}"], "path": ["api", "payments", "{{payment_id}}"] } }
+        },
+        {
+          "name": "Get Payments by User ID",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/payments/user/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["api", "payments", "user", "{{user_id}}"] } }
+        },
+        {
+          "name": "Get Receipt by Receipt ID",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/payments/receipt/{{receipt_id}}", "host": ["{{gateway_url}}"], "path": ["api", "payments", "receipt", "{{receipt_id}}"] } }
+        },
+        {
+          "name": "Payment Service Health",
+          "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/api/payments/health", "host": ["{{gateway_url}}"], "path": ["api", "payments", "health"] } }
+        }
+      ]
+    },
+    {
+      "name": "Infra Health Checks",
+      "item": [
+        { "name": "Eureka Dashboard", "request": { "method": "GET", "url": { "raw": "http://localhost:8761", "host": ["localhost"], "port": "8761" } } },
+        { "name": "Config Server Health", "request": { "method": "GET", "url": { "raw": "http://localhost:8888/actuator/health", "host": ["localhost"], "port": "8888", "path": ["actuator", "health"] } } },
+        { "name": "API Gateway Health", "request": { "method": "GET", "url": { "raw": "{{gateway_url}}/actuator/health", "host": ["{{gateway_url}}"], "path": ["actuator", "health"] } } }
+      ]
+    }
+  ]
+}
