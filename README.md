@@ -116,8 +116,7 @@ Full request/response examples are in the Postman collection below.
 ## Resources
 
 - [Postman Collection](Postman-Collection/postman_collection.json)
-- ![Eureka Dashboard](./docs/screenshots/eureka_dashboard.png)
-
+- [Screenshot](Screenshot)
 ## Testing
 
 All endpoints were tested using the Postman collection above, covering:
